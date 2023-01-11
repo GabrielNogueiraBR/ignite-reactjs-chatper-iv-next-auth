@@ -86,8 +86,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (token) {
       api.get("/me").then((response) => {
-        const { email, permissions, roles } = response.data;
-        setUser({ email, permissions, roles });
+        try {
+          const { email, permissions, roles } = response.data;
+          setUser({ email, permissions, roles });
+        } catch (err) {
+          console.error(err);
+        }
       });
     }
   }, []);
