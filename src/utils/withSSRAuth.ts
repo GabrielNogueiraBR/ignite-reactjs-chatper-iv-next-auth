@@ -3,7 +3,8 @@ import {
   GetServerSidePropsContext,
   GetServerSidePropsResult,
 } from "next";
-import { parseCookies } from "nookies";
+import { destroyCookie, parseCookies } from "nookies";
+import { AuthTokenError } from "../services/errors/AuthTokenError";
 
 // Hight Order Function
 //    Quando uma função retorna outra função
@@ -25,6 +26,27 @@ export function withSSRAuth<P extends { [key: string]: any }>(
       };
     }
 
-    return await fn(context);
+    try {
+      return await fn(context);
+    } catch (err) {
+      if (err instanceof AuthTokenError) {
+        destroyCookie(context, "nextauth.token");
+        destroyCookie(context, "nextauth.refreshToken");
+
+        return {
+          redirect: {
+            destination: "/",
+            permanent: false,
+          },
+        };
+      }
+
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
   };
 }

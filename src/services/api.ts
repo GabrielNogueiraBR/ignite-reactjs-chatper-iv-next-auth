@@ -2,6 +2,7 @@ import axios, { AxiosError } from "axios";
 import { GetServerSidePropsContext } from "next";
 import { parseCookies, setCookie } from "nookies";
 import { signOut } from "../context/AuthContext";
+import { AuthTokenError } from "./errors/AuthTokenError";
 
 type FailedRequestType = {
   onSuccess: (token: string) => void;
@@ -66,7 +67,8 @@ export function setupApiClient(context?: GetServerSidePropsContext) {
                 failedRequestQueue.forEach((request) => request.onFailure(err));
                 failedRequestQueue = [];
 
-                if (typeof window) signOut();
+                if (typeof window !== 'undefined') signOut();
+                else return Promise.reject(new AuthTokenError());
               })
               .finally(() => (isRefreshing = false));
           }
@@ -84,7 +86,7 @@ export function setupApiClient(context?: GetServerSidePropsContext) {
             });
           });
         } else {
-          if (typeof window) signOut();
+          if (typeof window !== 'undefined') signOut();
         }
       }
 
