@@ -1,5 +1,12 @@
-import { createContext, ReactNode, useContext } from "react";
+import { useRouter } from "next/router";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { api } from "../services/api";
+
+type User = {
+  email: string;
+  permissions: string[];
+  roles: string[];
+};
 
 type SignInCredentials = {
   email: string;
@@ -8,6 +15,7 @@ type SignInCredentials = {
 
 type AuthContextData = {
   signIn(credentials: SignInCredentials): Promise<void>;
+  user?: User;
   isAuthenticated: boolean;
 };
 
@@ -18,7 +26,10 @@ type AuthProviderProps = {
 };
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const isAuthenticated = false;
+  const [user, setUser] = useState<User>();
+  const isAuthenticated = !!user;
+
+  const router = useRouter();
 
   async function signIn({ email, password }: SignInCredentials) {
     try {
@@ -27,14 +38,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
       });
 
-      console.log(response.data);
+      const { token, refreshToken, permissions, roles } = response.data;
+
+      // Alternativas para manter token:
+      //    sessionStorage (Desvantagem é na mudança de telas e no fechamento e reabertura de uma  página)
+      //    localStorage (No SSR isso não funciona com NextJS porque não existe localStorage do lado do servidor)
+      //    cookies (ESCOLHIDA)
+
+      setUser({
+        email,
+        permissions,
+        roles,
+      });
+
+      router.push("/dashboard");
     } catch (error) {
       console.error(error);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, isAuthenticated }}>
+    <AuthContext.Provider value={{ signIn, user, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
