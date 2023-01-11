@@ -29,17 +29,8 @@ export function withSSRAuth<P extends { [key: string]: any }>(
     try {
       return await fn(context);
     } catch (err) {
-      if (err instanceof AuthTokenError) {
-        destroyCookie(context, "nextauth.token");
-        destroyCookie(context, "nextauth.refreshToken");
-
-        return {
-          redirect: {
-            destination: "/",
-            permanent: false,
-          },
-        };
-      }
+      destroyCookie(context, "nextauth.token");
+      destroyCookie(context, "nextauth.refreshToken");
 
       return {
         redirect: {

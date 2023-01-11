@@ -1,12 +1,23 @@
 import React from "react";
 import { useAuth } from "../context/AuthContext";
+import { useCan } from "../hooks/useCan";
 import { setupApiClient } from "../services/api";
 import { withSSRAuth } from "../utils/withSSRAuth";
 
 const Dashboard = () => {
   const { user } = useAuth();
 
-  return <h1>Dashboard: {user?.email}</h1>;
+  const userCanSeeMetrics = useCan({
+    permissions: ["metrics.list"],
+  });
+
+  return (
+    <>
+      <h1>Dashboard: {user?.email}</h1>
+
+      {userCanSeeMetrics && <div>Métricas</div>}
+    </>
+  );
 };
 
 export default Dashboard;
