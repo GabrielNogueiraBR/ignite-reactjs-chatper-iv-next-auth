@@ -1,3 +1,5 @@
+import { GetServerSideProps } from "next";
+import { parseCookies } from "nookies";
 import { FormEvent, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import styles from "../styles/Home.module.css";
@@ -35,3 +37,20 @@ export default function Home() {
     </form>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const cookies = parseCookies(context);
+
+  if (cookies["nextauth.token"]) {
+    return {
+      redirect: {
+        destination: "/dashboard",
+        permanent: false, // HTTP Code (301 ou 302): Informa se esse redirecionamento sempre vai acontecer, ou se apenas aconteceu por alguma condicao
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+};
