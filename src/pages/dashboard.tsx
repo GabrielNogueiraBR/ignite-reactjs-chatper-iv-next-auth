@@ -6,7 +6,7 @@ import { setupApiClient } from "../services/api";
 import { withSSRAuth } from "../utils/withSSRAuth";
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
 
   const userCanSeeMetrics = useCan({
     permissions: ["metrics.list"],
@@ -15,6 +15,8 @@ const Dashboard = () => {
   return (
     <>
       <h1>Dashboard: {user?.email}</h1>
+
+      <button onClick={signOut}>Sign Out</button>
 
       {userCanSeeMetrics && <div>Métricas</div>}
       <Can permissions={["users.list"]}>
