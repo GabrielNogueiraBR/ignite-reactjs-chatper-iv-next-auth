@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { createContext, ReactNode, useContext, useState } from "react";
 import { api } from "../services/api";
 
+import { setCookie } from "nookies";
+
 type User = {
   email: string;
   permissions: string[];
@@ -44,6 +46,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       //    sessionStorage (Desvantagem é na mudança de telas e no fechamento e reabertura de uma  página)
       //    localStorage (No SSR isso não funciona com NextJS porque não existe localStorage do lado do servidor)
       //    cookies (ESCOLHIDA)
+
+      const cookieOptions = {
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: "/",
+      };
+
+      setCookie(undefined, "nextauth.token", token, cookieOptions);
+      setCookie(
+        undefined,
+        "nextauth.refreshToken",
+        refreshToken,
+        cookieOptions
+      );
 
       setUser({
         email,
