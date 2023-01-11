@@ -1,4 +1,5 @@
 import React from "react";
+import Can from "../components/Can";
 import { useAuth } from "../context/AuthContext";
 import { useCan } from "../hooks/useCan";
 import { setupApiClient } from "../services/api";
@@ -16,6 +17,9 @@ const Dashboard = () => {
       <h1>Dashboard: {user?.email}</h1>
 
       {userCanSeeMetrics && <div>Métricas</div>}
+      <Can permissions={["users.list"]}>
+        <div>Lista de usuários</div>
+      </Can>
     </>
   );
 };
