@@ -1,8 +1,14 @@
 import { useRouter } from "next/router";
-import { createContext, ReactNode, useContext, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { api } from "../services/api";
 
-import { setCookie } from "nookies";
+import { setCookie, parseCookies } from "nookies";
 
 type User = {
   email: string;
@@ -66,11 +72,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
         roles,
       });
 
+      // used to update headers with new data of token
+      api.defaults.headers["Authorization"] = `Bearer ${token}`;
+
       router.push("/dashboard");
     } catch (error) {
       console.error(error);
     }
   }
+
+  useEffect(() => {
+    const { "nextauth.token": token } = parseCookies();
+
+    if (token) {
+      api.get("/me").then((response) => {
+        const { email, permissions, roles } = response.data;
+        setUser({ email, permissions, roles });
+      });
+    }
+  }, []);
 
   return (
     <AuthContext.Provider value={{ signIn, user, isAuthenticated }}>
